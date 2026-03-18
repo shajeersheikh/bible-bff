@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible BFF</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f0e8;--s1:#fff;--s2:#f0ebe0;--s3:#e8e0d0;
+  --border:#ddd5c5;--gold:#c8902a;--gold2:#e8a83a;--goldbg:#fdf3e0;
+  --brown:#3d2c1e;--brown2:#6b4c32;--text:#2a1f14;
+  --muted:#8a7060;--muted2:#c0a890;--green:#2c7a3a;
+  --font-s:'Lora',serif;--font-b:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;}
+
+/* ── NAV ── */
+.nav{background:var(--s1);border-bottom:1px solid var(--border);padding:0 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:4px;}
+.nav-logo{font-family:var(--font-s);font-style:italic;font-size:1.15rem;color:var(--brown);padding:13px 0;white-space:nowrap;}
+.nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:14px 9px;font-size:11px;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── PAGES ── */
+.page{display:none;max-width:480px;margin:0 auto;padding-bottom:170px;}
+.page.active{display:block;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(160deg,#2d4a3e,#4a3220);padding:26px 20px 22px;text-align:center;color:#fff;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,144,42,0.15),transparent 60%);pointer-events:none;}
+.hero-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px;}
+.hero-title{font-family:var(--font-s);font-size:1.5rem;font-weight:600;color:#fff;}
+.hero-title em{color:var(--gold2);}
+.hero-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;}
+
+/* ── STREAK BANNER ── */
+.streak-banner{background:linear-gradient(135deg,var(--goldbg),#fff);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.streak-flame{font-size:1.6rem;line-height:1;}
+.streak-info{flex:1;}
+.streak-num{font-size:1.2rem;font-weight:700;color:var(--brown);font-family:var(--font-s);line-height:1;}
+.streak-label{font-size:11px;color:var(--muted);margin-top:1px;}
+.streak-dots{display:flex;gap:5px;}
+.sdot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:10px;}
+.sdot.done{background:var(--gold);border-color:var(--gold);color:#fff;}
+.sdot.today{background:var(--goldbg);border-color:var(--gold);color:var(--gold);}
+
+/* ── DEVOTIONAL CARD ── */
+.devot-card{margin:16px;background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.devot-header{background:linear-gradient(135deg,#3d2c1e,#6b4c32);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.devot-badge{background:rgba(255,255,255,0.15);border-radius:6px;padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.8);}
+.devot-date{font-size:11px;color:rgba(255,255,255,0.55);margin-left:auto;}
+.devot-body{padding:14px 16px;}
+.devot-verse-ref{font-family:var(--font-s);font-style:italic;font-size:12px;color:var(--gold);margin-bottom:6px;}
+.devot-verse-text{font-family:var(--font-s);font-size:1rem;line-height:1.75;color:var(--text);font-style:italic;margin-bottom:10px;}
+.devot-reflection{font-size:12px;line-height:1.65;color:var(--muted);padding:10px 12px;background:var(--s2);border-radius:8px;font-style:italic;}
+.devot-footer{padding:10px 16px 14px;display:flex;gap:8px;}
+.devot-btn{flex:1;padding:9px;border-radius:9px;border:1.5px solid var(--border);background:transparent;font-family:var(--font-b);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;text-align:center;}
+.devot-btn:hover{border-color:var(--gold);color:var(--gold);}
+.devot-btn.primary{background:var(--brown);color:#fff;border-color:var(--brown);}
+
+/* ── SECTION ── */
+.section{padding:16px 16px 0;}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── VERSION BAR ── */
+.ver-bar{display:flex;gap:6px;padding:12px 16px;align-items:center;border-bottom:1px solid var(--border);background:var(--s1);}
+.ver-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.ver-sel{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--text);-webkit-appearance:none;appearance:none;outline:none;font-family:var(--font-b);}
+
+/* ── STORY CARDS ── */
+.story-card{background:var(--s1);border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border);transition:transform 0.15s;}
+.story-card:hover{transform:translateY(-1px);}
+.sc-art{height:140px;display:flex;align-items:flex-end;padding:12px;position:relative;overflow:hidden;}
+.sc-art-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.11;}
+.sc-art-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.75),transparent 55%);}
+.sc-art-content{position:relative;z-index:1;}
+.sc-art-tag{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:5px;}
+.sc-art-title{font-family:var(--font-s);font-size:1rem;font-weight:600;color:#fff;line-height:1.3;}
+.sc-art-ref{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.sc-body{padding:11px 14px;}
+.sc-ctx-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.sc-ctx ul{padding-left:14px;}
+.sc-ctx li{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:3px;}
+.sc-footer{padding:9px 14px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);}
+.sc-pills{display:flex;gap:5px;}
+.sc-pill{padding:3px 8px;border-radius:10px;background:var(--s2);font-size:10px;color:var(--muted);font-weight:500;}
+.sc-heart{background:none;border:none;font-size:16px;cursor:pointer;padding:2px;transition:transform 0.15s;color:var(--muted2);}
+.sc-heart:hover{transform:scale(1.2);color:#e74c3c;}
+.sc-heart.saved{color:#e74c3c;}
+.play-btn{width:calc(100% - 28px);margin:0 14px 12px;padding:10px;background:var(--brown);color:#fff;border:none;border-radius:10px;font-family:var(--font-b);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;}
+.play-btn:hover{background:var(--brown2);}
+.play-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ── FEELING PAGE ── */
+.feeling-hero{background:linear-gradient(160deg,#a8c4d4,#c8d8b0);padding:28px 20px 22px;text-align:center;}
+.fh-name{font-family:var(--font-s);font-style:italic;font-size:1.3rem;color:var(--brown);}
+.fh-sub{font-size:12px;color:var(--brown2);opacity:0.8;margin-top:3px;}
+.fh-box{background:rgba(61,44,30,0.1);border-radius:12px;padding:14px;margin-top:14px;text-align:left;}
+.fh-box-title{font-family:var(--font-s);font-size:0.95rem;font-weight:600;color:var(--brown);line-height:1.4;}
+.feeling-section{padding:16px;}
+.fi-wrap{position:relative;margin-bottom:9px;}
+.fi{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 48px 13px 14px;font-size:14px;color:var(--text);background:var(--s1);outline:none;font-family:var(--font-b);}
+.fi:focus{border-color:var(--gold);}
+.fi::placeholder{color:var(--muted2);}
+.fi-go{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.fi-go:hover{background:var(--gold2);}
+.or-row{text-align:center;color:var(--muted2);font-size:11px;margin:10px 0;position:relative;}
+.or-row::before,.or-row::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border);}
+.or-row::before{left:0;}.or-row::after{right:0;}
+.rand-btn{width:100%;padding:11px;background:var(--s1);border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-b);font-size:13px;font-weight:600;color:var(--brown);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px;}
+.rand-btn:hover{border-color:var(--gold);background:var(--goldbg);}
+.feeling-result{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px;display:none;}
+.fr-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.fr-ref{font-family:var(--font-s);font-style:italic;font-size:12px;color:var(--gold);margin-bottom:5px;}
+.fr-text{font-family:var(--font-s);font-size:1rem;line-height:1.8;color:var(--text);font-style:italic;margin-bottom:10px;}
+.fr-why{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:10px;}
+.fr-actions{display:flex;gap:7px;margin-top:11px;}
+.fr-btn{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;font-family:var(--font-b);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;}
+.fr-btn:hover{border-color:var(--gold);color:var(--gold);}
+.fr-btn.primary{background:var(--brown);color:#fff;border-color:var(--brown);}
+.sod-card{background:linear-gradient(135deg,var(--brown),var(--brown2));border-radius:14px;padding:15px;margin-top:14px;color:#fff;}
+.sod-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;}
+.sod-title{font-family:var(--font-s);font-size:1rem;font-weight:600;}
+.sod-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.sod-btn{margin-top:10px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:7px 14px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-b);}
+
+/* ── CHAT ── */
+.chat-header{background:var(--s1);border-bottom:1px solid var(--border);padding:11px 16px;text-align:center;}
+.ch-top{font-size:10px;color:var(--muted);margin-bottom:2px;letter-spacing:0.5px;}
+.ch-name{font-family:var(--font-s);font-style:italic;font-size:0.95rem;color:var(--brown);}
+.chat-msgs{padding:14px;display:flex;flex-direction:column;gap:12px;min-height:360px;}
+.chat-welcome{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:13px;font-family:var(--font-s);font-style:italic;line-height:1.7;}
+.msg-row{display:flex;gap:8px;align-items:flex-start;}
+.msg-row.user{flex-direction:row-reverse;}
+.msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px;}
+.msg-av.bff{background:linear-gradient(135deg,#3d5a40,#4a3220);}
+.msg-av.user{background:var(--goldbg);border:1px solid var(--border);}
+.msg-bub{max-width:82%;padding:10px 13px;border-radius:13px;font-size:13px;line-height:1.7;}
+.msg-bub.bff{background:var(--s1);border:1px solid var(--border);border-radius:13px 13px 13px 3px;color:var(--text);}
+.msg-bub.user{background:var(--brown);color:#fff;border-radius:13px 13px 3px 13px;}
+.msg-sender{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.msg-actions{display:flex;gap:5px;margin-top:7px;}
+.ma-btn{padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:transparent;font-size:10px;color:var(--muted);cursor:pointer;font-family:var(--font-b);transition:all 0.15s;}
+.ma-btn:hover{border-color:var(--gold);color:var(--gold);}
+.typing-row{display:flex;gap:8px;align-items:flex-start;padding:0 14px 8px;}
+.typing-bub{background:var(--s1);border:1px solid var(--border);border-radius:13px 13px 13px 3px;padding:10px 13px;display:none;}
+.td{width:6px;height:6px;border-radius:50%;background:var(--muted2);animation:tda 1.2s ease-in-out infinite;display:inline-block;margin:0 1px;}
+.td:nth-child(2){animation-delay:0.2s;}.td:nth-child(3){animation-delay:0.4s;}
+@keyframes tda{0%,80%,100%{transform:scale(0.5);opacity:0.3;}40%{transform:scale(1);opacity:1;}}
+.chat-bar{background:var(--s1);border-top:1px solid var(--border);padding:9px 14px 12px;position:sticky;bottom:0;}
+.sq-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.sq{padding:5px 10px;background:var(--s2);border:1px solid var(--border);border-radius:14px;font-size:11px;color:var(--muted);cursor:pointer;transition:all 0.15s;font-weight:500;}
+.sq:hover{border-color:var(--gold);color:var(--gold);}
+.chat-input-row{display:flex;gap:7px;align-items:flex-end;}
+.chat-ta{flex:1;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--text);resize:none;outline:none;max-height:90px;min-height:38px;line-height:1.5;font-family:var(--font-b);}
+.chat-ta:focus{border-color:var(--gold);}
+.chat-send{width:38px;height:38px;border-radius:10px;background:var(--brown);border:none;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chat-send:hover{background:var(--brown2);}
+.chat-send:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── TEA PAGE ── */
+.tea-hero{background:linear-gradient(160deg,#1a0a12,#2e1020);padding:22px 18px 16px;text-align:center;}
+.tea-title{font-family:var(--font-s);font-style:italic;font-size:1.4rem;color:#fff;}
+.tea-title span{color:#f472b6;}
+.tea-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.tea-search{padding:14px 16px 0;}
+.tea-row{display:flex;gap:7px;margin-bottom:7px;}
+.ti{background:var(--s1);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font-b);font-size:13px;outline:none;transition:border-color 0.2s;}
+.ti:focus{border-color:var(--gold);}
+.ti::placeholder{color:var(--muted2);}
+.ti-sel{-webkit-appearance:none;appearance:none;}
+.tea-btn{padding:10px 16px;border-radius:10px;border:none;font-family:var(--font-b);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.tea-btn-brown{background:var(--brown);color:#fff;}
+.tea-btn-pink{background:#c0392b;color:#fff;}
+.tea-btn-pink:disabled{opacity:0.5;cursor:not-allowed;}
+.tm-scroll{display:flex;gap:5px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;}
+.tm-scroll::-webkit-scrollbar{display:none;}
+.tm{flex-shrink:0;padding:6px 13px;border-radius:18px;border:1.5px solid var(--border);background:var(--s1);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.tm:hover,.tm.active{border-color:#c0392b;color:#c0392b;background:#fce8ed;}
+.tea-verse-box{margin:0 16px 10px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;display:none;}
+.tvb-ref{font-family:var(--font-s);font-style:italic;font-size:12px;color:var(--gold);margin-bottom:5px;}
+.tvb-text{font-family:var(--font-s);font-size:0.95rem;line-height:1.75;color:var(--text);font-style:italic;}
+.tvb-actions{display:flex;gap:6px;margin-top:10px;}
+.tea-output{margin:0 16px 10px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;display:none;}
+.to-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#c0392b;margin-bottom:9px;}
+.to-text{font-size:13px;line-height:1.8;color:var(--text);}
+.to-actions{display:flex;gap:7px;margin-top:12px;}
+
+/* ── SENTENCE LIST ── */
+.sent-list{padding:0 16px 8px;display:none;}
+.sent-list.vis{display:block;}
+.sub-item{display:flex;gap:7px;align-items:flex-start;padding:7px 10px;background:var(--s2);border:1px solid transparent;border-radius:8px;font-size:12px;cursor:pointer;transition:all 0.15s;margin-bottom:3px;}
+.sub-item:hover{border-color:var(--border);}
+.sub-item.active{background:var(--goldbg);border-color:var(--gold);}
+.sub-ts{font-size:10px;color:var(--muted2);flex-shrink:0;min-width:18px;margin-top:1px;}
+.sub-text{flex:1;color:var(--text);line-height:1.5;}
+
+/* ── SAVED PAGE ── */
+.fav-item{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:all 0.15s;}
+.fav-item:hover{border-color:var(--gold);}
+.fav-ref{font-family:var(--font-s);font-style:italic;font-size:12px;color:var(--gold);margin-bottom:2px;}
+.fav-text{font-size:11px;color:var(--muted);line-height:1.5;}
+.fav-meta{font-size:10px;color:var(--muted2);margin-top:3px;}
+.fav-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;flex-shrink:0;padding:2px;}
+.fav-del:hover{color:#e74c3c;}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--muted2);font-family:var(--font-s);font-style:italic;font-size:13px;line-height:1.7;}
+
+/* ── SETTINGS PANEL ── */
+.settings-btn{position:fixed;bottom:168px;right:14px;width:38px;height:38px;border-radius:50%;background:var(--brown);border:none;cursor:pointer;color:#fff;font-size:15px;display:none;z-index:300;box-shadow:0 2px 10px rgba(0,0,0,0.2);}
+.settings-btn.show{display:flex;align-items:center;justify-content:center;}
+.settings-drawer{position:fixed;bottom:162px;right:14px;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;width:255px;display:none;z-index:299;box-shadow:0 4px 18px rgba(0,0,0,0.1);}
+.settings-drawer.open{display:block;}
+.sd-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.ctrl-g{margin-bottom:10px;}
+.ctrl-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
+.ctrl-lbl span{color:var(--brown);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;border:none;padding:0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.preset-chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.pc{padding:4px 9px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--font-b);}
+.pc:hover,.pc.active{border-color:var(--gold);color:var(--gold);background:var(--goldbg);}
+
+/* ── BOTTOM PLAYER ── */
+.bottom-player{position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);padding:9px 16px 16px;display:none;z-index:250;}
+.bottom-player.show{display:block;}
+.bp-wrap{max-width:480px;margin:0 auto;}
+.bp-prog{height:2px;background:var(--border);border-radius:1px;margin-bottom:9px;overflow:hidden;cursor:pointer;}
+.bp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:1px;width:0%;transition:width 0.3s;}
+.bp-row{display:flex;align-items:center;gap:10px;}
+.bp-info{flex:1;min-width:0;}
+.bp-title{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bp-sub{font-size:10px;color:var(--muted);}
+.bp-ctrl{display:flex;align-items:center;gap:7px;}
+.bpc-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:4px;transition:color 0.15s;}
+.bpc-btn:hover{color:var(--gold);}
+.bpc-play{width:38px;height:38px;border-radius:50%;background:var(--brown);border:none;cursor:pointer;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.bpc-play:hover{background:var(--brown2);}
+.bp-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:7px;}
+.bp-speeds{display:flex;gap:3px;}
+.bps{font-size:10px;padding:3px 8px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-b);transition:all 0.15s;}
+.bps:hover,.bps.active{border-color:var(--gold);color:var(--gold);}
+.bp-btns{display:flex;gap:5px;}
+.bp-btn-sm{font-size:10px;padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-b);transition:all 0.15s;}
+.bp-btn-sm:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── UTILS ── */
+.shimmer{background:linear-gradient(90deg,var(--s2) 0%,var(--s3) 50%,var(--s2) 100%);background-size:200%;animation:shim 1.4s infinite;border-radius:7px;height:13px;margin-bottom:6px;}
+@keyframes shim{0%{background-position:200%;}100%{background-position:-200%;}}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--brown);color:#fff;border-radius:8px;padding:7px 16px;font-size:12px;opacity:0;transition:all 0.25s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+select,input,textarea{font-family:var(--font-b);}
+
+/* ── PRAYER ── */
+--pray:#5b3c8c;--prayLight:#ede0ff;
+.prayer-hero{background:linear-gradient(160deg,#4a2c6a,#2a1a3a);padding:26px 20px 22px;text-align:center;color:#fff;}
+.prayer-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;margin:16px;overflow:hidden;}
+.prayer-header{background:linear-gradient(135deg,#4a2c6a,#6a3c8a);color:#fff;padding:13px 16px;font-size:13px;font-weight:600;}
+.prayer-item{display:flex;align-items:flex-start;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);}
+.prayer-item:last-child{border-bottom:none;}
+.prayer-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted2);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;transition:all 0.15s;}
+.prayer-check.answered{background:#2c7a3a;border-color:#2c7a3a;color:#fff;}
+.prayer-text-wrap{flex:1;}
+.prayer-text{font-size:13px;color:var(--text);line-height:1.5;}
+.prayer-text.answered{text-decoration:line-through;color:var(--muted2);}
+.prayer-date{font-size:10px;color:var(--muted2);margin-top:2px;}
+.prayer-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:2px;flex-shrink:0;transition:color 0.15s;}
+.prayer-del:hover{color:#c0392b;}
+.add-prayer-row{display:flex;gap:8px;padding:14px 16px;background:var(--s2);border-top:1px solid var(--border);}
+.add-prayer-inp{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:24px;padding:10px 16px;font-size:13px;font-family:var(--font-b);outline:none;color:var(--text);}
+.add-prayer-inp:focus{border-color:#5b3c8c;}
+.add-prayer-inp::placeholder{color:var(--muted2);}
+.add-prayer-btn{background:#5b3c8c;color:#fff;border:none;border-radius:24px;padding:0 18px;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--font-b);transition:opacity 0.15s;}
+.add-prayer-btn:hover{opacity:0.85;}
+.pray-stats{display:flex;gap:10px;padding:12px 16px;background:var(--goldbg);border-bottom:1px solid var(--border);}
+.pray-stat{flex:1;text-align:center;}
+.pray-stat-num{font-size:1.3rem;font-weight:700;color:var(--brown);font-family:var(--font-s);}
+.pray-stat-lbl{font-size:10px;color:var(--muted);margin-top:1px;letter-spacing:0.5px;}
+
+/* ── PLAN ── */
+.plan-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;margin:16px;overflow:hidden;}
+.plan-prog-wrap{padding:16px 16px 8px;}
+.plan-prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;}
+.plan-prog-track{height:8px;background:var(--s3);border-radius:4px;overflow:hidden;}
+.plan-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width 0.5s ease;width:0%;}
+.plan-day{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background 0.15s;cursor:pointer;}
+.plan-day:last-child{border-bottom:none;}
+.plan-day:hover{background:var(--s2);}
+.plan-day.done{background:rgba(44,122,58,0.04);}
+.day-num{width:30px;height:30px;background:var(--goldbg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--brown);font-size:12px;flex-shrink:0;}
+.plan-day.done .day-num{background:#2c7a3a;color:#fff;}
+.day-info{flex:1;}
+.day-title{font-size:13px;font-weight:600;color:var(--text);}
+.plan-day.done .day-title{text-decoration:line-through;color:var(--muted2);}
+.day-ref{font-size:11px;color:var(--gold);margin-top:2px;font-family:var(--font-s);font-style:italic;}
+.day-chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:#2c7a3a;flex-shrink:0;transition:all 0.15s;}
+.plan-day.done .day-chk{background:#2c7a3a;border-color:#2c7a3a;color:#fff;}
+
+/* ── SEARCH ── */
+.search-hero{background:linear-gradient(160deg,#b5874a,#5a3e1a);}
+.search-box{padding:14px 16px;border-bottom:1px solid var(--border);}
+.search-row{display:flex;gap:8px;}
+.search-inp{flex:1;background:var(--s1);border:1.5px solid var(--border);border-radius:24px;padding:11px 16px;font-size:13px;font-family:var(--font-b);outline:none;color:var(--text);}
+.search-inp:focus{border-color:var(--gold);}
+.search-inp::placeholder{color:var(--muted2);}
+.search-go{background:var(--brown);color:#fff;border:none;border-radius:24px;padding:0 20px;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--font-b);transition:background 0.15s;}
+.search-go:hover{background:var(--brown2);}
+.search-hint{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.sh{padding:5px 11px;background:var(--s2);border:1px solid var(--border);border-radius:14px;font-size:11px;color:var(--muted);cursor:pointer;transition:all 0.15s;font-weight:500;}
+.sh:hover{border-color:var(--gold);color:var(--gold);}
+.search-result{padding:14px 16px;border-bottom:1px solid var(--border);}
+.search-result:last-child{border-bottom:none;}
+.sr-ref{font-family:var(--font-s);font-style:italic;color:var(--gold);font-size:12px;margin-bottom:5px;}
+.sr-text{font-size:13px;color:var(--text);line-height:1.7;font-family:var(--font-s);font-style:italic;}
+.sr-actions{display:flex;gap:6px;margin-top:8px;}
+
+/* ── API KEY IN SETTINGS ── */
+.api-key-row{display:flex;gap:5px;margin-top:8px;}
+.api-key-inp{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-size:10px;font-family:monospace;color:var(--text);outline:none;}
+.api-key-inp:focus{border-color:var(--gold);}
+.api-key-save{background:var(--gold);border:none;border-radius:6px;padding:0 11px;color:#fff;font-weight:600;font-size:10px;cursor:pointer;font-family:var(--font-b);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">bible bff</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="goPage('home',this)">Home</button>
+    <button class="nav-tab" onclick="goPage('stories',this)">Stories</button>
+    <button class="nav-tab" onclick="goPage('feeling',this)">Feeling</button>
+    <button class="nav-tab" onclick="goPage('chat',this)">Chat</button>
+    <button class="nav-tab" onclick="goPage('tea',this)">Tea ☕</button>
+    <button class="nav-tab" onclick="goPage('prayer',this)">🙏 Prayer</button>
+    <button class="nav-tab" onclick="goPage('plan',this)">📋 Plan</button>
+    <button class="nav-tab" onclick="goPage('search',this)">🔍 Search</button>
+    <button class="nav-tab" onclick="goPage('saved',this)">Saved</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME PAGE ═══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-label">Welcome back</div>
+    <h2 class="hero-title">Good <em id="timeGreeting">morning</em>, bestie ✨</h2>
+    <p class="hero-sub">Your daily word is waiting for you</p>
+  </div>
+
+  <!-- STREAK -->
+  <div class="streak-banner">
+    <div class="streak-flame">🔥</div>
+    <div class="streak-info">
+      <div class="streak-num" id="streakNum">0 day streak</div>
+      <div class="streak-label">Keep reading daily to grow your streak</div>
+    </div>
+    <div class="streak-dots" id="streakDots"></div>
+  </div>
+
+  <!-- DAILY DEVOTIONAL -->
+  <div class="devot-card" id="devotCard">
+    <div class="devot-header">
+      <div class="devot-badge">Daily Devotional</div>
+      <div class="devot-date" id="devotDate"></div>
+    </div>
+    <div class="devot-body" id="devotBody">
+      <div class="shimmer" style="width:35%;height:11px;margin-bottom:8px;"></div>
+      <div class="shimmer"></div><div class="shimmer" style="width:90%;"></div><div class="shimmer" style="width:75%;"></div>
+      <div class="shimmer" style="width:100%;height:60px;margin-top:8px;border-radius:8px;"></div>
+    </div>
+    <div class="devot-footer">
+      <button class="devot-btn" onclick="copyText(window._devotText||'')">Copy</button>
+      <button class="devot-btn" onclick="startNarrating(window._devotText||'','Daily Devotional')">🎙 Listen</button>
+      <button class="devot-btn primary" onclick="markDevotDone()">✓ Done</button>
+    </div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="section">
+    <div class="sec-title">Quick Start</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div onclick="goPage('feeling',document.querySelectorAll('.nav-tab')[2])" style="background:linear-gradient(135deg,#a8c4d4,#c8d8b0);border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">💛</div>
+        <div style="font-weight:700;font-size:13px;color:var(--brown);">How are you feeling?</div>
+        <div style="font-size:11px;color:var(--brown2);margin-top:2px;">Find your verse</div>
+      </div>
+      <div onclick="goPage('chat',document.querySelectorAll('.nav-tab')[3])" style="background:linear-gradient(135deg,#d4c8b0,#e8dcc8);border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">💬</div>
+        <div style="font-weight:700;font-size:13px;color:var(--brown);">Ask your BFF</div>
+        <div style="font-size:11px;color:var(--brown2);margin-top:2px;">Bible advice & chat</div>
+      </div>
+      <div onclick="goPage('stories',document.querySelectorAll('.nav-tab')[1])" style="background:linear-gradient(135deg,#c8b090,#d4bca0);border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">📖</div>
+        <div style="font-weight:700;font-size:13px;color:var(--brown);">Bible Stories</div>
+        <div style="font-size:11px;color:var(--brown2);margin-top:2px;">Context + narration</div>
+      </div>
+      <div onclick="goPage('tea',document.querySelectorAll('.nav-tab')[4])" style="background:linear-gradient(135deg,#2e1020,#4a1830);border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">☕</div>
+        <div style="font-weight:700;font-size:13px;color:#f472b6;">Spill The Tea</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Any verse, girl style</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STORIES PAGE ═══ -->
+<div class="page" id="page-stories">
+  <div class="hero">
+    <div class="hero-label">Bible Stories</div>
+    <h2 class="hero-title">Told <em>Modern & Simple</em></h2>
+    <p class="hero-sub">Context first. Then it hits different.</p>
+  </div>
+  <div class="ver-bar">
+    <span class="ver-label">Version</span>
+    <select class="ver-sel" id="storiesVer">
+      <option value="kjv">KJV — King James Version</option>
+      <option value="web">WEB — World English Bible</option>
+      <option value="bbe">BBE — Basic English</option>
+      <option value="webbe">WEBBE — World English (British)</option>
+      <option value="oeb-us">OEB — Open English (US)</option>
+      <option value="oeb-cw">OEB — Open English (Commonwealth)</option>
+      <option value="clementine">Clementine — Latin Vulgate</option>
+      <option value="almeida">Almeida — Portuguese</option>
+      <option value="rccv">RCCV — Romanian</option>
+    </select>
+  </div>
+  <div class="section" id="storiesGrid"></div>
+</div>
+
+<!-- ═══ FEELING PAGE ═══ -->
+<div class="page" id="page-feeling">
+  <div class="feeling-hero">
+    <div class="fh-name">bible bff</div>
+    <div class="fh-sub">What's on your heart today?</div>
+    <div class="fh-box">
+      <div class="fh-box-title">Find the perfect Bible Verse<br>based on how you're feeling</div>
+    </div>
+  </div>
+  <div class="feeling-section">
+    <div style="margin-bottom:9px;">
+      <select id="feelingVer" style="background:var(--s1);border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--text);-webkit-appearance:none;appearance:none;outline:none;width:100%;">
+        <option value="kjv">KJV — King James Version</option>
+        <option value="web">WEB — World English Bible</option>
+        <option value="bbe">BBE — Basic English</option>
+        <option value="webbe">WEBBE — World English (British)</option>
+        <option value="oeb-us">OEB — Open English (US)</option>
+        <option value="oeb-cw">OEB — Open English (Commonwealth)</option>
+        <option value="almeida">Almeida — Portuguese</option>
+        <option value="rccv">RCCV — Romanian</option>
+      </select>
+    </div>
+    <div class="fi-wrap">
+      <input class="fi" id="feelingInput" type="text" placeholder="Today I am feeling..." onkeydown="if(event.key==='Enter')findVerse()">
+      <button class="fi-go" onclick="findVerse()">↑</button>
+    </div>
+    <div class="or-row">Or</div>
+    <button class="rand-btn" onclick="randomVerse()">✦ Generate a random verse</button>
+    <div class="feeling-result" id="feelingResult"><div id="frContent"></div></div>
+    <div class="sod-card">
+      <div class="sod-lbl">Story of the day</div>
+      <div class="sod-title">The Woman Who Touched His Garment</div>
+      <div class="sod-sub">Mark 5:25–34 · Faith that moves mountains</div>
+      <button class="sod-btn" onclick="runStory('mark 5:25-34','The Woman Who Touched His Garment')">▶ Listen Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHAT PAGE ═══ -->
+<div class="page" id="page-chat">
+  <div class="chat-header">
+    <div class="ch-top">new chat</div>
+    <div class="ch-name">Bible Bff</div>
+  </div>
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="chat-welcome">Hey bestie 👋 I'm your Bible BFF.<br>Ask me anything — anxiety, heartbreak, purpose, forgiveness. I'll find what God says. ☕</div>
+  </div>
+  <div class="typing-row">
+    <div class="msg-av bff">🙏</div>
+    <div class="typing-bub" id="typingBub"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+  </div>
+  <div class="chat-bar">
+    <div class="sq-row" id="sqRow">
+      <div class="sq" onclick="askQ(this)">Anxiety & worry?</div>
+      <div class="sq" onclick="askQ(this)">How do I find my purpose?</div>
+      <div class="sq" onclick="askQ(this)">Bible on heartbreak</div>
+      <div class="sq" onclick="askQ(this)">I feel unworthy</div>
+      <div class="sq" onclick="askQ(this)">What does Proverbs say about wisdom?</div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-ta" id="chatInput" placeholder="Ask your Bible BFF..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TEA PAGE ═══ -->
+<div class="page" id="page-tea">
+  <div class="tea-hero">
+    <div class="tea-title">Spill The <span>Tea</span> ☕</div>
+    <div class="tea-sub">Any verse → girl podcast energy → auto-narrated</div>
+  </div>
+  <div class="tea-search">
+    <div class="tea-row">
+      <input class="ti" id="teaQ" type="text" placeholder="John 3:16, Psalm 23:1..." style="flex:1;" onkeydown="if(event.key==='Enter')loadTeaVerse()">
+      <select class="ti ti-sel" id="teaVer" style="max-width:95px;">
+        <option value="kjv">KJV</option><option value="web">WEB</option>
+        <option value="bbe">BBE</option><option value="webbe">WEBBE</option>
+        <option value="oeb-us">OEB (US)</option><option value="oeb-cw">OEB (CW)</option>
+        <option value="clementine">Latin</option><option value="almeida">Portuguese</option>
+        <option value="rccv">Romanian</option>
+      </select>
+      <button class="tea-btn tea-btn-brown" onclick="loadTeaVerse()">Load</button>
+    </div>
+  </div>
+  <div class="tm-scroll">
+    <button class="tm active" onclick="setTM('bff',this)">👯 BFF Mode</button>
+    <button class="tm" onclick="setTM('dramatic',this)">😱 Dramatic</button>
+    <button class="tm" onclick="setTM('pastor',this)">🙏 Pastor</button>
+    <button class="tm" onclick="setTM('hype',this)">🔥 Hype Girl</button>
+    <button class="tm" onclick="setTM('gentle',this)">🌸 Gentle</button>
+    <button class="tm" onclick="setTM('realTalk',this)">💬 Real Talk</button>
+    <button class="tm" onclick="setTM('tiktok',this)">📱 TikTok Script</button>
+  </div>
+  <div class="tea-verse-box" id="teaVerseBox"></div>
+  <div style="padding:0 16px 10px;display:none;" id="teaSpillRow">
+    <button class="tea-btn tea-btn-pink btn-full" id="teaSpillBtn" onclick="spillTeaTea()" style="width:100%;padding:12px;display:flex;align-items:center;justify-content:center;">☕ Spill The Tea</button>
+  </div>
+  <div class="sent-list" id="sentenceList"></div>
+  <div class="tea-output" id="teaOutput"></div>
+</div>
+
+<!-- ═══ PRAYER PAGE ═══ -->
+<div class="page" id="page-prayer">
+  <div class="prayer-hero hero">
+    <div class="hero-label">Prayer Journal</div>
+    <h2 class="hero-title">Talk to God <em>honestly</em></h2>
+    <p class="hero-sub">Track requests · celebrate answered prayers</p>
+  </div>
+  <div class="pray-stats">
+    <div class="pray-stat"><div class="pray-stat-num" id="prayTotal">0</div><div class="pray-stat-lbl">Total</div></div>
+    <div class="pray-stat"><div class="pray-stat-num" id="prayAnswered">0</div><div class="pray-stat-lbl">Answered</div></div>
+    <div class="pray-stat"><div class="pray-stat-num" id="prayPending">0</div><div class="pray-stat-lbl">Believing</div></div>
+  </div>
+  <div class="prayer-card">
+    <div class="prayer-header">My Prayer Requests</div>
+    <div id="prayerList"></div>
+    <div class="add-prayer-row">
+      <input class="add-prayer-inp" type="text" id="prayerInput" placeholder="e.g. healing for grandma, new job..." onkeydown="if(event.key==='Enter')addPrayer()">
+      <button class="add-prayer-btn" onclick="addPrayer()">Add 🙏</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PLAN PAGE ═══ -->
+<div class="page" id="page-plan">
+  <div class="hero" style="background:linear-gradient(160deg,#2a6b4a,#1a4a2a);">
+    <div class="hero-label">Reading Plan</div>
+    <h2 class="hero-title">7 Days of <em>Hope</em></h2>
+    <p class="hero-sub">One passage a day to start your morning</p>
+  </div>
+  <div class="plan-card">
+    <div class="plan-prog-wrap">
+      <div class="plan-prog-lbl"><span>Progress</span><span id="planPct">0 / 7 days</span></div>
+      <div class="plan-prog-track"><div class="plan-prog-fill" id="planFill"></div></div>
+    </div>
+    <div id="planDays"></div>
+  </div>
+</div>
+
+<!-- ═══ SEARCH PAGE ═══ -->
+<div class="page" id="page-search">
+  <div class="hero search-hero">
+    <div class="hero-label">Verse Search</div>
+    <h2 class="hero-title">Find any <em>Bible verse</em></h2>
+    <p class="hero-sub">Search by reference: John 3:16, Psalm 23:1–3</p>
+  </div>
+  <div style="background:var(--s1);border-bottom:1px solid var(--border);">
+    <div class="search-box">
+      <div class="search-row">
+        <input class="search-inp" type="text" id="searchInput" placeholder="e.g. John 3:16 or Psalm 23:1-3..." onkeydown="if(event.key==='Enter')searchBible()">
+        <select id="searchVer" style="background:var(--s1);border:1.5px solid var(--border);border-radius:24px;padding:10px 12px;font-size:12px;color:var(--text);-webkit-appearance:none;appearance:none;outline:none;font-family:var(--font-b);margin-left:4px;">
+          <option value="kjv">KJV</option><option value="web">WEB</option><option value="bbe">BBE</option>
+          <option value="webbe">WEBBE</option><option value="oeb-us">OEB</option><option value="almeida">PT</option>
+        </select>
+        <button class="search-go" onclick="searchBible()">Go</button>
+      </div>
+      <div class="search-hint">
+        <div class="sh" onclick="searchQuick('john 3:16')">John 3:16</div>
+        <div class="sh" onclick="searchQuick('psalm 23:1-3')">Psalm 23</div>
+        <div class="sh" onclick="searchQuick('romans 8:28')">Romans 8:28</div>
+        <div class="sh" onclick="searchQuick('philippians 4:13')">Phil 4:13</div>
+        <div class="sh" onclick="searchQuick('isaiah 40:31')">Isaiah 40:31</div>
+        <div class="sh" onclick="searchQuick('proverbs 31:25')">Prov 31:25</div>
+        <div class="sh" onclick="searchQuick('jeremiah 29:11')">Jer 29:11</div>
+        <div class="sh" onclick="searchQuick('matthew 5:3-12')">Beatitudes</div>
+      </div>
+    </div>
+  </div>
+  <div id="searchResults" style="background:var(--s1);"></div>
+</div>
+
+<!-- ═══ SAVED PAGE ═══ -->
+<div class="page" id="page-saved">
+  <div class="hero" style="background:linear-gradient(160deg,#3a2a1a,#2a3a20);">
+    <div class="hero-label">Your Library</div>
+    <h2 class="hero-title">Favorites & <em>History</em></h2>
+  </div>
+  <div class="section">
+    <div class="sec-title">♥ Favorites</div>
+    <div id="favsList"></div>
+    <div class="sec-title" style="margin-top:14px;">🕐 Recent History</div>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<button class="settings-btn" id="settingsBtn" onclick="toggleSettings()">⚙</button>
+<div class="settings-drawer" id="settingsDrawer">
+  <div class="sd-title">Voice & Narration</div>
+  <div class="ctrl-g">
+    <div class="ctrl-lbl">VOICE <span style="color:var(--muted2);font-size:9px;">★ = female</span></div>
+    <select id="voiceSelect" onchange="setVoiceByIdx(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);margin-bottom:6px;-webkit-appearance:none;appearance:none;outline:none;"></select>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <div id="voiceStatus" style="font-size:10px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Loading...</div>
+      <button onclick="testVoice()" style="background:var(--gold);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-b);">▶ Test</button>
+    </div>
+    <button onclick="loadVoiceCache();setTimeout(populateVoiceSel,300);showToast('Refreshing voices...');" style="width:100%;margin-top:6px;background:transparent;border:1px solid var(--border);border-radius:7px;padding:5px;font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--font-b);">↺ Refresh Voices</button>
+  </div>
+  <div class="ctrl-g">
+    <div class="ctrl-lbl">RATE <span id="rateLabel">0.88</span></div>
+    <input id="rateRange" type="range" min="0.6" max="1.4" step="0.04" value="0.88" oninput="document.getElementById('rateLabel').textContent=parseFloat(this.value).toFixed(2)">
+  </div>
+  <div class="ctrl-g">
+    <div class="ctrl-lbl">PITCH <span id="pitchLabel">1.06</span></div>
+    <input id="pitchRange" type="range" min="0.7" max="1.5" step="0.04" value="1.06" oninput="document.getElementById('pitchLabel').textContent=parseFloat(this.value).toFixed(2)">
+  </div>
+  <div class="sd-title" style="margin-top:2px;">Presets</div>
+  <div class="preset-chips">
+    <button class="pc" onclick="applyPreset('whisper',this)">Whisper</button>
+    <button class="pc active" onclick="applyPreset('calm',this)">Calm</button>
+    <button class="pc" onclick="applyPreset('tea',this)">Tea Spill</button>
+    <button class="pc" onclick="applyPreset('drama',this)">Drama</button>
+    <button class="pc" onclick="applyPreset('host',this)">Podcast</button>
+  </div>
+  <div class="sd-title" style="margin-top:8px;">Anthropic API Key</div>
+  <div class="api-key-row">
+    <input class="api-key-inp" type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <button class="api-key-save" onclick="saveApiKey()">Save</button>
+  </div>
+  <div style="font-size:9px;color:var(--muted2);margin-top:5px;line-height:1.5;">Required for AI Chat, Feeling & Tea features. Get yours at console.anthropic.com</div>
+</div>
+
+<!-- BOTTOM PLAYER -->
+<div class="bottom-player" id="bottomPlayer">
+  <div class="bp-wrap">
+    <div class="bp-prog" onclick="seekByClick(event)"><div class="bp-fill" id="bpFill"></div></div>
+    <div class="bp-row">
+      <div class="bp-info">
+        <div class="bp-title" id="bpTitle">—</div>
+        <div class="bp-sub" id="bpSub">Bible BFF</div>
+      </div>
+      <div class="bp-ctrl">
+        <button class="bpc-btn" onclick="skipBack()">&#9664;&#9664;</button>
+        <button class="bpc-play" id="playBtn" onclick="togglePlay()">&#9654;</button>
+        <button class="bpc-btn" onclick="skipFwd()">&#9654;&#9654;</button>
+      </div>
+    </div>
+    <div class="bp-bottom">
+      <div class="bp-speeds">
+        <button class="bps" onclick="setSpeed(0.8,this)">0.8×</button>
+        <button class="bps active" onclick="setSpeed(1,this)">1×</button>
+        <button class="bps" onclick="setSpeed(1.2,this)">1.2×</button>
+        <button class="bps" onclick="setSpeed(1.5,this)">1.5×</button>
+      </div>
+      <div class="bp-btns">
+        <button class="bp-btn-sm" onclick="copyText(currentScript)">Copy</button>
+        <button class="bp-btn-sm" onclick="exportScript()">Export .txt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════ HELPERS ═══════════
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');}
+function escJS(s){return String(s).replaceAll('\\','\\\\').replaceAll('`','\\`').replaceAll('$','\\$').replaceAll('\n','\\n').replaceAll('\r','');}
+function showToast(m,dur=2400){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
+function copyText(t){navigator.clipboard.writeText(t||'').then(()=>showToast('Copied! ✓')).catch(()=>showToast('Copy failed'));}
+function exportScript(){if(!currentScript)return;const b=new Blob([currentTitle+'\n\n'+currentScript],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=(currentTitle||'bible-bff').replace(/\s+/g,'-').toLowerCase()+'.txt';a.click();URL.revokeObjectURL(u);showToast('Exported!');}
+
+// ═══════════ STORAGE ═══════════
+const SK={favs:'bff_favs4',hist:'bff_hist4',streak:'bff_streak4',devot:'bff_devot4'};
+function getL(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch{return null;}}
+function setL(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function addHistory(ref,text,mode){
+  const h=getL(SK.hist)||[];
+  const next=[{ref,text,mode,at:Date.now()},...h.filter(x=>x.ref!==ref)].slice(0,20);
+  setL(SK.hist,next);
+}
+function toggleFav(ref,text){
+  const f=getL(SK.favs)||[];
+  const has=f.some(x=>x.ref===ref);
+  if(has){setL(SK.favs,f.filter(x=>x.ref!==ref));showToast('Removed from saved');}
+  else{setL(SK.favs,[{ref,text,at:Date.now()},...f]);showToast('Saved ♥');}
+  renderSaved();
+}
+
+// ═══════════ STREAK ═══════════
+function getStreak(){return getL(SK.streak)||{count:0,lastDate:'',done:[]};}
+function saveStreak(s){setL(SK.streak,s);}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+
+function updateStreakUI(){
+  const s=getStreak();
+  const n=s.count||0;
+  document.getElementById('streakNum').textContent=n+' day streak';
+  const dots=document.getElementById('streakDots');
+  const today=todayStr();
+  // Show last 7 days
+  dots.innerHTML=Array.from({length:7},(_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-6+i);
+    const ds=d.toISOString().split('T')[0];
+    const isDone=(s.done||[]).includes(ds);
+    const isToday=ds===today;
+    const cls=isDone?'sdot done':isToday?'sdot today':'sdot';
+    return`<div class="${cls}">${isDone?'✓':isToday?'·':''}</div>`;
+  }).join('');
+}
+
+function markDevotDone(){
+  const s=getStreak();
+  const today=todayStr();
+  if(!(s.done||[]).includes(today)){
+    s.done=[...(s.done||[]),today].slice(-30);
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    const yStr=yesterday.toISOString().split('T')[0];
+    if(s.lastDate===yStr||s.count===0)s.count=(s.count||0)+1;
+    else if(s.lastDate!==today)s.count=1;
+    s.lastDate=today;
+    saveStreak(s);
+    updateStreakUI();
+    showToast('🔥 Streak updated! Day '+s.count);
+  }else{showToast('Already done today! 🙏');}
+}
+
+// ═══════════ DAILY DEVOTIONAL ═══════════
+const DEVOT_VERSES=[
+  {q:'psalm 46:1',ver:'kjv'},{q:'john 14:27',ver:'kjv'},{q:'philippians 4:6-7',ver:'kjv'},
+  {q:'isaiah 40:31',ver:'kjv'},{q:'romans 8:28',ver:'kjv'},{q:'proverbs 3:5-6',ver:'kjv'},
+  {q:'matthew 11:28-29',ver:'kjv'},{q:'jeremiah 29:11',ver:'kjv'},{q:'joshua 1:9',ver:'kjv'},
+  {q:'psalm 23:1-3',ver:'kjv'},{q:'romans 15:13',ver:'kjv'},{q:'isaiah 41:10',ver:'kjv'},
+  {q:'ephesians 3:20',ver:'kjv'},{q:'psalm 121:1-2',ver:'kjv'},{q:'1 corinthians 13:4-7',ver:'kjv'},
+];
+
+async function loadDevotional(){
+  const today=todayStr();
+  const cached=getL(SK.devot);
+  // date display
+  document.getElementById('devotDate').textContent=new Date().toLocaleDateString('en',{month:'short',day:'numeric'});
+
+  if(cached&&cached.date===today){
+    renderDevot(cached.ref,cached.text,cached.reflection);
+    return;
+  }
+  const idx=Math.floor(Date.now()/86400000)%DEVOT_VERSES.length;
+  const dv=DEVOT_VERSES[idx];
+  try{
+    const v=await fetchVerse(dv.q,dv.ver);
+    // short reflection via AI
+    let reflection='Take a moment with this verse today. Let it speak to wherever you are right now. 💛';
+    try{
+      const r=await callAI(`You are a gentle Bible devotional writer. Given a verse, write a single short reflection (2-3 sentences max). Warm, personal, encouraging. No headers. Just the reflection text.`,`Verse: ${v.ref}\n"${v.text}"`);
+      if(r)reflection=r.trim();
+    }catch{}
+    setL(SK.devot,{date:today,ref:v.ref,text:v.text,reflection});
+    renderDevot(v.ref,v.text,reflection);
+  }catch(e){
+    renderDevot('John 3:16','For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.','Today you are loved beyond measure. That is your starting point. 💛');
+  }
+}
+
+function renderDevot(ref,text,reflection){
+  window._devotText=reflection+' '+text;
+  document.getElementById('devotBody').innerHTML=`
+    <div class="devot-verse-ref">${esc(ref)}</div>
+    <div class="devot-verse-text">"${esc(text)}"</div>
+    <div class="devot-reflection">${esc(reflection)}</div>`;
+}
+
+// ═══════════ PAGES ═══════════
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el&&el.classList)el.classList.add('active');
+  if(id==='saved')renderSaved();
+}
+
+// ═══════════ VOICE ═══════════
+let selectedVoice=null,_voiceCache=[];
+const FEM=['female','samantha','victoria','karen','moira','fiona','zira','nova','aria','emma','tessa','veena','allison','kate','alice','jenny','serena','ava','amy','susan','lisa','anna','sandy','helen','nicky','hazel','grace','zoe','iris'];
+function isFem(v){const n=v.name.toLowerCase();return FEM.some(k=>n.includes(k));}
+function loadVoiceCache(){_voiceCache=speechSynthesis.getVoices();if(_voiceCache.length)populateVoiceSel();}
+function getSortedVoices(){
+  const all=_voiceCache.length?_voiceCache:speechSynthesis.getVoices();
+  return[...all.filter(v=>v.lang.startsWith('en')&&isFem(v)),...all.filter(v=>v.lang.startsWith('en')&&!isFem(v)),...all.filter(v=>!v.lang.startsWith('en'))];
+}
+function populateVoiceSel(){
+  const sel=document.getElementById('voiceSelect');if(!sel)return;
+  const vs=getSortedVoices();if(!vs.length){setTimeout(populateVoiceSel,400);return;}
+  sel.innerHTML=vs.map((v,i)=>`<option value="${i}">${v.lang.startsWith('en')&&isFem(v)?'★ ':''}${esc(v.name)} (${v.lang})</option>`).join('');
+  if(!selectedVoice){selectedVoice=vs[0]||null;const s=document.getElementById('voiceStatus');if(s&&selectedVoice)s.textContent='✓ '+selectedVoice.name;}
+}
+speechSynthesis.onvoiceschanged=loadVoiceCache;
+window.addEventListener('load',()=>{loadVoiceCache();setTimeout(loadVoiceCache,500);setTimeout(loadVoiceCache,1500);});
+document.addEventListener('click',()=>{if(!_voiceCache.length)loadVoiceCache();},{once:true});
+function setVoiceByIdx(idx){const vs=getSortedVoices();selectedVoice=vs[+idx]||vs[0]||null;const s=document.getElementById('voiceStatus');if(s&&selectedVoice)s.textContent='✓ '+selectedVoice.name;}
+function testVoice(){
+  if(!selectedVoice){loadVoiceCache();showToast('Loading voices, try again in a sec');return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance("Hey bestie! This is what I sound like. I am your Bible BFF and I am ready to spill the tea!");
+  u.voice=selectedVoice;
+  u.rate=parseFloat(document.getElementById('rateRange').value||0.88);
+  u.pitch=parseFloat(document.getElementById('pitchRange').value||1.06);
+  u.volume=1;speechSynthesis.speak(u);
+  showToast('Testing: '+selectedVoice.name);
+}
+function speakSentence(s){
+  const u=new SpeechSynthesisUtterance(s);
+  const v=selectedVoice||getSortedVoices()[0]||speechSynthesis.getVoices()[0];
+  if(v)u.voice=v;
+  u.rate=parseFloat(document.getElementById('rateRange').value||0.88)*speed;
+  u.pitch=parseFloat(document.getElementById('pitchRange').value||1.06);
+  u.volume=1;return u;
+}
+
+// ═══════════ PRESETS ═══════════
+const PRESETS={whisper:{rate:0.78,pitch:1.1},calm:{rate:0.88,pitch:1.06},tea:{rate:0.96,pitch:1.14},drama:{rate:0.84,pitch:1.2},host:{rate:1.0,pitch:1.04}};
+function applyPreset(n,el){
+  const p=PRESETS[n];if(!p)return;
+  document.getElementById('rateRange').value=p.rate;
+  document.getElementById('pitchRange').value=p.pitch;
+  document.getElementById('rateLabel').textContent=p.rate.toFixed(2);
+  document.getElementById('pitchLabel').textContent=p.pitch.toFixed(2);
+  document.querySelectorAll('.pc').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  showToast('Preset: '+n);
+}
+function toggleSettings(){document.getElementById('settingsDrawer').classList.toggle('open');}
+
+// ═══════════ NARRATION ═══════════
+let narQ=[],narIdx=0,isPlaying=false,isPaused=false,speed=1,currentScript='',currentTitle='';
+function splitSentences(t){return(t.replace(/\s+/g,' ').match(/[^.!?\n]+[.!?\n]+|[^.!?\n]+$/g)||[t]).map(s=>s.trim()).filter(Boolean);}
+function renderSents(sents){
+  const el=document.getElementById('sentenceList');if(!el)return;
+  el.classList.add('vis');
+  el.innerHTML=sents.map((s,i)=>`<div class="sub-item" id="sent-${i}" onclick="jumpTo(${i})"><span class="sub-ts">${String(i+1).padStart(2,'0')}</span><span class="sub-text">${esc(s)}</span></div>`).join('');
+}
+function hlSent(i){
+  document.querySelectorAll('.sub-item').forEach(e=>e.classList.remove('active'));
+  const el=document.getElementById('sent-'+i);
+  if(el){el.classList.add('active');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+function jumpTo(i){const w=isPlaying;stopAll();narIdx=i;if(w)speakCurrent();}
+function startNarrating(text,title){
+  currentScript=text;currentTitle=title||'Bible BFF';
+  narQ=splitSentences(text);narIdx=0;
+  document.getElementById('bpTitle').textContent=currentTitle;
+  document.getElementById('bpSub').textContent=narQ.length+' lines';
+  document.getElementById('bottomPlayer').classList.add('show');
+  document.getElementById('settingsBtn').classList.add('show');
+  renderSents(narQ);speakCurrent();
+}
+function speakCurrent(){
+  speechSynthesis.cancel();
+  if(narIdx>=narQ.length){stopAll();showToast('Amen 🙏');return;}
+  hlSent(narIdx);
+  const u=speakSentence(narQ[narIdx]);
+  document.getElementById('bpFill').style.width=Math.round((narIdx/narQ.length)*100)+'%';
+  document.getElementById('bpSub').textContent=(narIdx+1)+' / '+narQ.length+' lines';
+  u.onend=()=>{if(isPlaying){narIdx++;speakCurrent();}};
+  u.onerror=()=>{if(isPlaying){narIdx++;speakCurrent();}};
+  speechSynthesis.speak(u);isPlaying=true;isPaused=false;
+  document.getElementById('playBtn').innerHTML='&#9646;&#9646;';
+}
+function togglePlay(){
+  if(!narQ.length)return;
+  if(isPlaying&&!isPaused){speechSynthesis.pause();isPaused=true;isPlaying=false;document.getElementById('playBtn').innerHTML='&#9654;';}
+  else if(isPaused){speechSynthesis.resume();isPaused=false;isPlaying=true;document.getElementById('playBtn').innerHTML='&#9646;&#9646;';}
+  else speakCurrent();
+}
+function skipBack(){const w=isPlaying;stopAll();narIdx=Math.max(0,narIdx-1);if(w)speakCurrent();}
+function skipFwd(){const w=isPlaying;stopAll();narIdx=Math.min(narQ.length-1,narIdx+1);if(w)speakCurrent();}
+function stopAll(){speechSynthesis.cancel();isPlaying=false;isPaused=false;document.getElementById('playBtn').innerHTML='&#9654;';}
+function setSpeed(s,el){speed=s;document.querySelectorAll('.bps').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function seekByClick(e){if(!narQ.length)return;const pct=e.offsetX/e.currentTarget.offsetWidth;const w=isPlaying;stopAll();narIdx=Math.floor(pct*narQ.length);if(w)speakCurrent();}
+
+// ═══════════ BIBLE API ═══════════
+async function fetchVerse(q,ver){
+  const clean=q.trim().replace(/[–—]/g,'-').replace(/\s+/g,' ');
+  const url=`https://bible-api.com/${encodeURIComponent(clean)}?translation=${ver}`;
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    return{ref:d.reference,text:d.text.trim().replace(/\n+/g,' ')};
+  }catch{
+    try{
+      const r2=await fetch(`https://bible-api.com/${encodeURIComponent(clean)}`);
+      const d2=await r2.json();
+      if(d2.error)throw new Error(d2.error);
+      return{ref:d2.reference,text:d2.text.trim().replace(/\n+/g,' ')};
+    }catch(e2){throw new Error('Could not load. Try: "John 3:16" or "Psalm 23"');}
+  }
+}
+
+// ═══════════ AI CALL ═══════════
+async function callAI(system,userMsg){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,system,messages:[{role:'user',content:userMsg}]})
+  });
+  const d=await r.json();
+  if(d.error)throw new Error(d.error.message||'AI error');
+  return d.content?.[0]?.text||'';
+}
+
+// ═══════════ STORIES ═══════════
+const STORIES=[
+  {title:"Angel Announces Jesus' Birth",ref:'Luke 1:26–38',q:'luke 1:26-38',art:'🕊️',bg:'#2d5a4a',tag:'Birth',ctx:["Mary is a teenager in Nazareth — faithful, humble, engaged to Joseph.","Joseph is a carpenter from the line of David.","Pregnancy outside of marriage in this culture was not just scandalous — it could be life-threatening."],len:'5 min'},
+  {title:'Woman at the Well',ref:'John 4:1–30',q:'john 4:1-26',art:'💧',bg:'#4a2030',tag:'Grace',ctx:["Jews and Samaritans had DEEP cultural beef — they absolutely did not interact.","She came to the well at noon (the hottest hour). Everyone else came at dawn. She came alone — that says everything.","She had five husbands. Jesus already knew every detail of her story. And still stopped for her."],len:'7 min'},
+  {title:'Esther — Born for This Moment',ref:'Esther 4:1–17',q:'esther 4:1-17',art:'👑',bg:'#3a3010',tag:'Courage',ctx:["Esther is an orphan raised by her older cousin Mordecai.","She became queen of Persia but kept her Jewish identity a secret.","An extermination order was issued against her people — and she was the only one positioned to stop it."],len:'6 min'},
+  {title:'The Prodigal Son',ref:'Luke 15:11–24',q:'luke 15:11-24',art:'🏃',bg:'#1a2a4a',tag:'Forgiveness',ctx:["Asking for your inheritance while your father is still alive = basically telling him you wish he was dead.","He spent everything. Hit rock bottom. Feeding pigs — the most degrading work possible for a Jewish person.","When he came home, his father 'saw him while he was still a great way off' — meaning the father was watching, waiting, looking for him."],len:'5 min'},
+  {title:'Mary Magdalene at the Tomb',ref:'John 20:11–18',q:'john 20:11-18',art:'🌹',bg:'#2a1a30',tag:'Resurrection',ctx:["Mary Magdalene was one of Jesus' most devoted followers — she followed him to the cross when others fled.","She stayed at the tomb after the disciples left. Alone. Weeping.","She became the first person in all of recorded history to see the risen Christ."],len:'4 min'},
+  {title:'David & Goliath',ref:'1 Samuel 17:40–51',q:'1 samuel 17:40-50',art:'🪨',bg:'#1a2a1a',tag:'Faith',ctx:["David was the youngest brother — so overlooked that his father didn't even call him when Samuel came to anoint a king.","Goliath was around 9 feet tall, fully armored, a professional warrior. The whole army was paralyzed with fear.","David's response: 'You come to me with a sword and a spear — I come in the name of the Lord.'"],len:'5 min'},
+  {title:'Ruth & Naomi',ref:'Ruth 1:14–22',q:'ruth 1:14-22',art:'🤝',bg:'#2a3a20',tag:'Loyalty',ctx:["Ruth was a Moabite — a foreigner, technically an 'enemy' of Israel by culture.","Her husband died. She had every reason to return to her own people and start over.","She chose to stay with Naomi, her mother-in-law, and speak one of the most beautiful commitments in all of scripture."],len:'4 min'},
+  {title:'Jonah & the Whale',ref:'Jonah 1:1–17',q:'jonah 1:1-17',art:'🐳',bg:'#1a2a3a',tag:'Running',ctx:["God told Jonah to go to Nineveh — a city of Israel's most brutal enemies.","Jonah literally booked passage on a ship going in the exact opposite direction.","The sailors eventually threw him overboard during a storm — and he was swallowed by a great fish."],len:'5 min'},
+  {title:'Paul & Silas in Prison',ref:'Acts 16:22–31',q:'acts 16:22-31',art:'⛓️',bg:'#3a1a1a',tag:'Worship',ctx:["Paul and Silas were beaten with rods and thrown into the innermost cell of a Roman prison.","Their feet were fastened in stocks. Midnight — the darkest hour.","What did they do? They sang. Loudly enough for all the other prisoners to hear them."],len:'5 min'},
+  {title:'The Woman with the Issue of Blood',ref:'Mark 5:25–34',q:'mark 5:25-34',art:'🌿',bg:'#2a3a2a',tag:'Healing',ctx:["She had been bleeding for 12 years. Under Jewish law, this made her ritually unclean — untouchable.","She had spent all her money on doctors. She was getting worse, not better.","She touched the hem of Jesus' garment. And immediately — in that very moment — she was healed."],len:'5 min'},
+  {title:'Daniel in the Lions Den',ref:'Daniel 6:16–23',q:'daniel 6:16-23',art:'🦁',bg:'#3a2a10',tag:'Protection',ctx:["Daniel refused to stop praying even after a law was passed making it a capital offense.","He was thrown into a den of lions. A stone was rolled over the opening and sealed with the king's own seal.","The king couldn't sleep all night. At dawn he ran to the den and cried out Daniel's name."],len:'5 min'},
+  {title:"Lazarus — 'Come Forth'",ref:'John 11:38–44',q:'john 11:38-44',art:'💫',bg:'#2a1a3a',tag:'Resurrection',ctx:["Lazarus had been dead for four days. Four days. In a hot climate. His sister said 'by this time there is an odor.'","Jesus did not run to Lazarus when he first heard he was sick. He waited. On purpose.","When Jesus arrived at the tomb, the first thing he did was weep. The shortest verse in the Bible: 'Jesus wept.'"],len:'6 min'},
+];
+
+const STORY_SYS=`You are a gifted Bible storyteller. Given a passage: first give 2-3 fascinating context facts most people don't know (told conversationally like you're telling a friend). Then retell the passage in a modern, emotionally vivid way — bring out the human stakes. 5-6 paragraphs. Write ONLY the spoken narration script — no stage directions, no headers.`;
+
+function buildStoriesGrid(){
+  const g=document.getElementById('storiesGrid');
+  g.innerHTML=STORIES.map((s,i)=>`
+    <div class="story-card">
+      <div class="sc-art" style="background:linear-gradient(160deg,${s.bg},#0a0a0f);">
+        <div class="sc-art-bg">${s.art}</div>
+        <div class="sc-art-overlay"></div>
+        <div class="sc-art-content">
+          <div class="sc-art-tag">${s.tag}</div>
+          <div class="sc-art-title">${esc(s.title)}</div>
+          <div class="sc-art-ref">${s.ref}</div>
+        </div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-ctx-lbl">Before You Listen</div>
+        <div class="sc-ctx"><ul>${s.ctx.map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-pills">
+          <span class="sc-pill">${s.len}</span>
+          <span class="sc-pill" id="sv-${i}">KJV</span>
+        </div>
+        <button class="sc-heart" id="hrt-${i}" onclick="toggleFav('${escJS(s.ref)}','${escJS(s.ctx.join(' '))}')">♡</button>
+      </div>
+      <button class="play-btn" id="pb-${i}" onclick="playStory(${i},this)">▶ Play Session</button>
+    </div>`).join('');
+}
+
+async function playStory(i,btn){
+  const s=STORIES[i];
+  const ver=document.getElementById('storiesVer').value||'kjv';
+  document.getElementById('sv-'+i).textContent=ver.toUpperCase();
+  document.querySelectorAll('.play-btn').forEach(b=>{if(b.id!==btn.id){b.textContent='▶ Play Session';b.disabled=false;}});
+  btn.textContent='⏳ Loading...';btn.disabled=true;
+  try{
+    const v=await fetchVerse(s.q,ver);
+    const script=await callAI(STORY_SYS,`Title: ${s.title}\nPassage: ${v.ref}\n\n"${v.text}"`)||`Let me tell you about ${s.title}. ${v.text}`;
+    addHistory(v.ref,v.text,'story');
+    btn.textContent='⏸ Playing';
+    startNarrating(script,s.title);
+  }catch(e){
+    btn.textContent='▶ Play Session';btn.disabled=false;
+    showToast(e.message||'Could not load — check connection');
+  }
+}
+
+async function runStory(q,title){
+  showToast('Loading...');
+  try{const v=await fetchVerse(q,'kjv');const sc=await callAI(STORY_SYS,`Passage: ${v.ref}\n\n"${v.text}"`)||v.text;startNarrating(sc,title);}
+  catch(e){showToast('Could not load');}
+}
+
+// ═══════════ FEELING ═══════════
+const RAND_V=['john 3:16','psalm 23:1-3','romans 8:28','jeremiah 29:11','philippians 4:13','isaiah 40:31','proverbs 3:5-6','matthew 11:28-29','romans 15:13','psalm 46:1','isaiah 41:10','joshua 1:9','ephesians 3:20','zephaniah 3:17','psalm 34:18'];
+const FEEL_SYS=`You are a caring Bible BFF. Someone shares how they feel. Find the PERFECT Bible verse and explain in 2-3 warm personal sentences why it speaks to their exact situation. Reply ONLY as valid JSON with no markdown: {"reference":"Book Chapter:Verse","verse":"the full verse text","why":"your warm personal explanation"}`;
+
+async function findVerse(){
+  const f=document.getElementById('feelingInput').value.trim();
+  if(!f){showToast('Share how you\'re feeling 💛');return;}
+  showFeelingLoad(f);
+  try{
+    let txt=await callAI(FEEL_SYS,'I am feeling: '+f);
+    txt=txt.replace(/```json|```/g,'').trim();
+    const j=JSON.parse(txt);
+    showFeelingResult(f,j.reference,j.verse,j.why);
+    addHistory(j.reference,j.verse,'feeling');
+  }catch(e){showFeelingResult(f,'Philippians 4:13','I can do all things through Christ who strengtheneth me.','Whatever you\'re carrying right now, you are not carrying it alone. His strength is yours. 💛');}
+}
+
+async function randomVerse(){
+  showFeelingLoad('today');
+  const ver=(document.getElementById('feelingVer')||{}).value||'kjv';
+  const q=RAND_V[Math.floor(Math.random()*RAND_V.length)];
+  try{
+    const v=await fetchVerse(q,ver);
+    showFeelingResult('today',v.ref,v.text,'This verse found you today for a reason. Read it slowly. Let it find the part of your heart it was meant for. 💛');
+    addHistory(v.ref,v.text,'random');
+  }catch{showFeelingResult('today','John 3:16','For God so loved the world, that he gave his only begotten Son.','The whole story in one sentence. You are loved beyond measure. 💛');}
+}
+
+function showFeelingLoad(f){
+  const r=document.getElementById('feelingResult');r.style.display='block';
+  document.getElementById('frContent').innerHTML=`<div class="fr-tag">Finding verse for: "${esc(f)}"</div><div class="shimmer" style="width:40%;height:11px;"></div><div class="shimmer"></div><div class="shimmer" style="width:80%;"></div>`;
+}
+function showFeelingResult(f,ref,verse,why){
+  const sv=escJS(verse),sr=escJS(ref),sw=escJS(why);
+  document.getElementById('frContent').innerHTML=`
+    <div class="fr-tag">When you're feeling: ${esc(f)}</div>
+    <div class="fr-ref">${esc(ref)}</div>
+    <div class="fr-text">"${esc(verse)}"</div>
+    <div class="fr-why"><strong>Why this verse?</strong><br>${esc(why)}</div>
+    <div class="fr-actions">
+      <button class="fr-btn" onclick="copyText(\`${sv} — ${sr}\`)">Copy</button>
+      <button class="fr-btn" onclick="toggleFav(\`${sr}\`,\`${sv}\`)">Save ♡</button>
+      <button class="fr-btn primary" onclick="startNarrating(\`${sw} ${sv}\`,\`${sr}\`)">🎙 Listen</button>
+    </div>`;
+}
+
+// ═══════════ CHAT ═══════════
+const CHAT_SYS=`You are Bible BFF — a warm, caring, knowledgeable best friend who knows the Bible deeply. Speak conversationally like a friend, not a pastor. Always validate feelings first. ALWAYS include at least one Bible verse quoted in full with reference. Keep responses to 3-4 short paragraphs. Be warm, real, and relatable. Never preachy.`;
+let chatHist=[];
+
+function askQ(el){document.getElementById('chatInput').value=el.textContent;document.getElementById('sqRow').style.display='none';sendChat();}
+
+async function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';inp.style.height='38px';
+  document.getElementById('sqRow').style.display='none';
+  document.getElementById('chatSend').disabled=true;
+  addMsg('user','You',text);
+  chatHist.push({role:'user',content:text});
+  document.getElementById('typingBub').style.display='flex';
+  document.getElementById('chatMsgs').scrollTop=99999;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:CHAT_SYS,messages:chatHist})
+    });
+    const d=await r.json();
+    const reply=d.content?.[0]?.text||'I\'m here bestie. Let me find the right words for you.';
+    chatHist.push({role:'assistant',content:reply});
+    document.getElementById('typingBub').style.display='none';
+    addMsg('bff','Bible Bff',reply);
+  }catch{
+    document.getElementById('typingBub').style.display='none';
+    addMsg('bff','Bible Bff','Hey bestie, having connection trouble right now. But Philippians 4:6-7 says to bring everything to God in prayer. You are not alone. 💛');
+  }
+  document.getElementById('chatSend').disabled=false;
+  document.getElementById('chatMsgs').scrollTop=99999;
+}
+
+function addMsg(type,name,text){
+  const msgs=document.getElementById('chatMsgs');
+  const w=msgs.querySelector('.chat-welcome');if(w)w.remove();
+  const d=document.createElement('div');
+  d.className='msg-row '+type;
+  const actions=type==='bff'?`<div class="msg-actions"><button class="ma-btn" onclick="copyText(\`${escJS(text)}\`)">Copy</button><button class="ma-btn" onclick="startNarrating(\`${escJS(text)}\`,'Bible BFF')">🎙</button></div>`:'';
+  d.innerHTML=`<div class="msg-av ${type}">${type==='bff'?'🙏':'👤'}</div><div class="msg-bub ${type}">${type==='bff'?`<div class="msg-sender">Bible Bff</div>`:''}${esc(text).replace(/\n/g,'<br>')}${actions}</div>`;
+  msgs.appendChild(d);msgs.scrollTop=99999;
+}
+
+// ═══════════ TEA ═══════════
+let teaMode='bff',teaVerseText='',teaVerseRef='';
+const TEA_MODES={
+  bff:`You are the user's Bible BFF on FaceTime spilling the hottest tea. Phrases: "okay wait—","bestie NO","HERE'S the tea","I need you to feel this","Pause. Let that land.","not me ugly crying over this". Focus on the emotional human journey. Intimate and personal. 4 paragraphs. ONLY spoken script.`,
+  dramatic:`Cinematic storyteller. Scene-setting. Rising tension. Full emotional weight at the reveal. Make the listener feel like they were there. 4 paragraphs. ONLY spoken script.`,
+  pastor:`Passionate Spirit-filled pastor. Authority and warmth. Build to a crescendo. "Church, hear me—","Don't miss what God is saying","This is your word today." 4 paragraphs. ONLY spoken script.`,
+  hype:`Christian hype girl. Most empowering thing ever heard. "This verse is talking about YOU!","God literally planned this for your life!","You woke up today and THIS is your word!" 4 paragraphs. ONLY spoken script.`,
+  gentle:`Gentle tender friend sitting with someone hurting. Soft, healing, like a warm hug. 4 paragraphs. ONLY spoken script.`,
+  realTalk:`100% real. No church language. Raw honest truth. "Let me be straight with you.","This is literally saying...","Stop playing and apply this.","You hear me?" 4 paragraphs. ONLY spoken script.`,
+  tiktok:`Write a punchy TikTok-style voiceover script for this verse. Hook in first 3 words. Fast-paced. Dramatic pauses marked with "..." Short punchy sentences. End with a call to action. Under 150 words. ONLY the script.`,
+};
+function setTM(m,el){teaMode=m;document.querySelectorAll('.tm').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+
+async function loadTeaVerse(){
+  const q=document.getElementById('teaQ').value.trim();
+  const ver=document.getElementById('teaVer').value;
+  if(!q){showToast('Enter a verse first');return;}
+  const vb=document.getElementById('teaVerseBox');
+  vb.style.display='block';
+  vb.innerHTML='<div class="shimmer"></div><div class="shimmer" style="width:80%;"></div>';
+  try{
+    const v=await fetchVerse(q,ver);
+    teaVerseText=v.text;teaVerseRef=v.ref;
+    vb.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div class="tvb-ref">${esc(v.ref)}</div>
+        <div style="display:flex;gap:5px;">
+          <button class="fr-btn" style="padding:4px 9px;font-size:10px;" onclick="toggleFav('${escJS(v.ref)}','${escJS(v.text)}')">♡ Save</button>
+          <button class="fr-btn" style="padding:4px 9px;font-size:10px;" onclick="copyText('${escJS(v.text)} — ${escJS(v.ref)}')">Copy</button>
+        </div>
+      </div>
+      <div class="tvb-text">"${esc(v.text)}"</div>`;
+    document.getElementById('teaSpillRow').style.display='block';
+    addHistory(v.ref,v.text,'tea');
+  }catch(e){
+    vb.innerHTML=`<div style="color:#c0392b;font-size:12px;padding:4px 0;">Could not load. Try: "John 3:16" or "Psalm 23:1-3"</div>`;
+  }
+}
+
+async function spillTeaTea(){
+  if(!teaVerseText){showToast('Load a verse first');return;}
+  const btn=document.getElementById('teaSpillBtn');
+  const out=document.getElementById('teaOutput');
+  btn.disabled=true;btn.textContent='☕ Brewing...';
+  out.style.display='block';
+  out.innerHTML='<div class="to-lbl">THE TEA ☕</div><div class="shimmer"></div><div class="shimmer" style="width:85%;"></div><div class="shimmer" style="width:70%;"></div>';
+  try{
+    const script=await callAI(TEA_MODES[teaMode],`Passage: ${teaVerseRef}\n\n"${teaVerseText}"`)||`Okay bestie — "${teaVerseText}" — This is your word today. Let it land. 💛`;
+    out.innerHTML=`
+      <div class="to-lbl">THE TEA ☕</div>
+      <div class="to-text">${esc(script)}</div>
+      <div class="to-actions">
+        <button class="fr-btn" onclick="copyText(\`${escJS(script)}\`)">Copy Script</button>
+        <button class="fr-btn" onclick="(function(){const b=new Blob([\`${escJS(teaVerseRef+'\\n\\n'+script)}\`],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='bible-tea.txt';a.click();})()">Export .txt</button>
+        <button class="fr-btn primary" onclick="startNarrating(\`${escJS(script)}\`,\`${escJS(teaVerseRef)}\`)">🎙 Narrate</button>
+      </div>`;
+    btn.disabled=false;btn.textContent='☕ Spill The Tea';
+    setTimeout(()=>startNarrating(script,teaVerseRef),400);
+  }catch(e){
+    out.innerHTML=`<div class="to-lbl">THE TEA ☕</div><div class="to-text">Okay bestie — "${esc(teaVerseText)}" — This is your word today. Let it land. 💛</div>`;
+    btn.disabled=false;btn.textContent='☕ Spill The Tea';
+  }
+}
+
+// ═══════════ SAVED ═══════════
+function renderSaved(){
+  const favs=getL(SK.favs)||[];
+  const hist=getL(SK.hist)||[];
+  const fl=document.getElementById('favsList');
+  const hl=document.getElementById('histList');
+  fl.innerHTML=favs.length?favs.map(f=>`
+    <div class="fav-item" onclick="startNarrating(\`${escJS(f.text)}\`,\`${escJS(f.ref)}\`)">
+      <div style="flex:1;min-width:0;">
+        <div class="fav-ref">${esc(f.ref)}</div>
+        <div class="fav-text">"${esc(f.text.substring(0,100))}${f.text.length>100?'…':''}"</div>
+      </div>
+      <button class="fav-del" onclick="event.stopPropagation();toggleFav('${escJS(f.ref)}','${escJS(f.text)}')">✕</button>
+    </div>`).join(''):'<div class="empty-state">No favorites yet.<br>Tap ♡ on any verse to save it.</div>';
+  hl.innerHTML=hist.length?hist.map(h=>`
+    <div class="fav-item" onclick="startNarrating(\`${escJS(h.text)}\`,\`${escJS(h.ref)}\`)">
+      <div style="flex:1;min-width:0;">
+        <div class="fav-ref">${esc(h.ref)}</div>
+        <div class="fav-text">"${esc(h.text.substring(0,80))}…"</div>
+        <div class="fav-meta">${h.mode||'—'} · ${new Date(h.at).toLocaleDateString()}</div>
+      </div>
+    </div>`).join(''):'<div class="empty-state">Your reading history will appear here.</div>';
+}
+
+// ═══════════ INIT ═══════════
+(function init(){
+  // Time greeting
+  const h=new Date().getHours();
+  document.getElementById('timeGreeting').textContent=h<12?'morning':h<17?'afternoon':'evening';
+  // Streak
+  updateStreakUI();
+  // Devotional
+  loadDevotional();
+  // Stories
+  buildStoriesGrid();
+  // Highlight saved stories
+  (getL(SK.favs)||[]).forEach(f=>{
+    STORIES.forEach((s,i)=>{if(s.ref===f.ref){const h=document.getElementById('hrt-'+i);if(h){h.textContent='♥';h.classList.add('saved');}}});
+  });
+})();
+</script>
+</body>
+</html>
+<script>
+// ═══════════ API KEY ═══════════
+function saveApiKey(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  localStorage.setItem('bff_api_key',k);
+  showToast(k?'API key saved ✓':'API key cleared');
+  patchCallAI();
+}
+function patchCallAI(){
+  const k=localStorage.getItem('bff_api_key')||'';
+  if(!k)return;
+  window._savedKey=k;
+}
+// On load, restore key
+(function(){
+  const k=localStorage.getItem('bff_api_key')||'';
+  if(k){document.getElementById('apiKeyInput').value=k;window._savedKey=k;}
+})();
+// Override callAI to inject saved key header if present
+const __origCallAI=window.callAI;
+window.callAI=async function(system,userMsg){
+  const k=window._savedKey||localStorage.getItem('bff_api_key')||'';
+  if(!k)return __origCallAI(system,userMsg);
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,system,messages:[{role:'user',content:userMsg}]})
+  });
+  const d=await r.json();
+  if(d.error)throw new Error(d.error.message||'AI error');
+  return d.content?.[0]?.text||'';
+};
+
+// ═══════════ PRAYER JOURNAL ═══════════
+let prayers=JSON.parse(localStorage.getItem('bff_prayers')||'[]');
+function savePrayers(){localStorage.setItem('bff_prayers',JSON.stringify(prayers));}
+function renderPrayers(){
+  const list=document.getElementById('prayerList');if(!list)return;
+  const total=prayers.length,answered=prayers.filter(p=>p.answered).length;
+  const tn=document.getElementById('prayTotal'),an=document.getElementById('prayAnswered'),pn=document.getElementById('prayPending');
+  if(tn)tn.textContent=total;if(an)an.textContent=answered;if(pn)pn.textContent=total-answered;
+  if(!total){list.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted2);font-family:var(--font-s);font-style:italic;line-height:1.7;">Add your first prayer request ✨<br><span style="font-size:11px;">Tap the box below to get started</span></div>';return;}
+  list.innerHTML=prayers.map((p,i)=>`
+    <div class="prayer-item">
+      <div class="prayer-check ${p.answered?'answered':''}" onclick="togglePrayer(${i})">${p.answered?'✓':''}</div>
+      <div class="prayer-text-wrap">
+        <div class="prayer-text ${p.answered?'answered':''}">${esc(p.text)}</div>
+        <div class="prayer-date">${p.answered?'🙌 Answered · ':'🙏 Believing · '}${new Date(p.date).toLocaleDateString()}</div>
+      </div>
+      <button class="prayer-del" onclick="deletePrayer(${i})">✕</button>
+    </div>`).join('');
+}
+function addPrayer(){
+  const inp=document.getElementById('prayerInput');if(!inp||!inp.value.trim())return;
+  prayers.unshift({text:inp.value.trim(),answered:false,date:Date.now()});
+  savePrayers();inp.value='';renderPrayers();showToast('Prayer added 🙏');
+}
+function togglePrayer(i){prayers[i].answered=!prayers[i].answered;savePrayers();renderPrayers();if(prayers[i].answered)showToast('Answered! 🙌');}
+function deletePrayer(i){prayers.splice(i,1);savePrayers();renderPrayers();}
+
+// ═══════════ READING PLAN ═══════════
+const PLAN=[
+  {day:1,ref:'Psalm 34:17-18',q:'psalm 34:17-18',title:'The Lord hears you'},
+  {day:2,ref:'Isaiah 40:31',q:'isaiah 40:31',title:'Renewed strength'},
+  {day:3,ref:'Romans 8:28',q:'romans 8:28',title:'All things work for good'},
+  {day:4,ref:'Jeremiah 29:11',q:'jeremiah 29:11',title:'Plans to prosper you'},
+  {day:5,ref:'Philippians 4:6-7',q:'philippians 4:6-7',title:'Peace beyond understanding'},
+  {day:6,ref:'Psalm 23:1-4',q:'psalm 23:1-4',title:'The Lord is my shepherd'},
+  {day:7,ref:'Romans 15:13',q:'romans 15:13',title:'Overflow with hope'},
+];
+let planProg=JSON.parse(localStorage.getItem('bff_plan7')||'[false,false,false,false,false,false,false]');
+function renderPlan(){
+  const cont=document.getElementById('planDays');if(!cont)return;
+  const done=planProg.filter(Boolean).length;
+  const pp=document.getElementById('planPct'),pf=document.getElementById('planFill');
+  if(pp)pp.textContent=done+' / 7 days';
+  if(pf)pf.style.width=Math.round((done/7)*100)+'%';
+  cont.innerHTML=PLAN.map((p,i)=>`
+    <div class="plan-day ${planProg[i]?'done':''}" onclick="playPlanDay(${i})">
+      <div class="day-num">${planProg[i]?'✓':p.day}</div>
+      <div class="day-info"><div class="day-title">${esc(p.title)}</div><div class="day-ref">${p.ref}</div></div>
+      <div class="day-chk" onclick="event.stopPropagation();togglePlanDay(${i})">${planProg[i]?'✓':''}</div>
+    </div>`).join('');
+}
+function togglePlanDay(i){planProg[i]=!planProg[i];localStorage.setItem('bff_plan7',JSON.stringify(planProg));renderPlan();if(planProg[i])showToast('Day '+PLAN[i].day+' done! 🔥');}
+async function playPlanDay(i){
+  const p=PLAN[i];showToast('Loading '+p.ref+'...');
+  try{const v=await fetchVerse(p.q,'kjv');const sc=await callAI(STORY_SYS,`Passage: ${v.ref}\n\n"${v.text}"`)||v.text;startNarrating(sc,p.title);addHistory(v.ref,v.text,'plan');}
+  catch(e){showToast('Could not load');}
+}
+
+// ═══════════ BIBLE SEARCH ═══════════
+async function searchBible(){
+  const q=document.getElementById('searchInput').value.trim();
+  const ver=(document.getElementById('searchVer')||{}).value||'kjv';
+  if(!q){showToast('Enter a verse reference');return;}
+  await doSearch(q,ver);
+}
+async function searchQuick(q){
+  document.getElementById('searchInput').value=q;
+  const ver=(document.getElementById('searchVer')||{}).value||'kjv';
+  await doSearch(q,ver);
+}
+async function doSearch(q,ver){
+  const res=document.getElementById('searchResults');if(!res)return;
+  res.innerHTML='<div style="padding:20px;"><div class="shimmer" style="width:40%;height:11px;"></div><div class="shimmer"></div><div class="shimmer" style="width:85%;"></div></div>';
+  try{
+    const v=await fetchVerse(q,ver);
+    const sv=escJS(v.text),sr=escJS(v.ref);
+    res.innerHTML=`<div class="search-result">
+      <div class="sr-ref">${esc(v.ref)} <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-left:4px;">${ver.toUpperCase()}</span></div>
+      <div class="sr-text">"${esc(v.text)}"</div>
+      <div class="sr-actions">
+        <button class="fr-btn" onclick="copyText(\`${sv} — ${sr}\`)">Copy</button>
+        <button class="fr-btn" onclick="toggleFav(\`${sr}\`,\`${sv}\`)">Save ♡</button>
+        <button class="fr-btn" onclick="startNarrating(\`${sv}\`,\`${sr}\`)">🎙 Listen</button>
+        <button class="fr-btn primary" onclick="goPage('tea',document.querySelectorAll('.nav-tab')[4]);setTimeout(()=>{document.getElementById('teaQ').value=\`${sr}\`;loadTeaVerse();},100)">☕ Tea</button>
+      </div>
+    </div>`;
+    addHistory(v.ref,v.text,'search');
+  }catch(e){
+    res.innerHTML=`<div style="padding:16px;color:#c0392b;font-size:13px;">Could not find "${esc(q)}".<br><span style="font-size:11px;color:var(--muted);">Try a reference like "John 3:16" or "Psalm 23:1-3"</span></div>`;
+  }
+}
+
+// ═══════════ EXTEND GOPAGE ═══════════
+const __origGP=window.goPage;
+window.goPage=function(id,el){
+  __origGP(id,el);
+  if(id==='prayer')renderPrayers();
+  if(id==='plan')renderPlan();
+};
+
+// Init new pages
+renderPrayers();
+renderPlan();
+</script>
